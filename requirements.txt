@@ -1,2 +1,6 @@
 Flask
+Flask-Cors
+Flask-SocketIO
+eventlet
+gunicorn
 paho-mqtt

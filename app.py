@@ -1,17 +1,17 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
-from flask import send_from_directory
-import os
+from flask_socketio import SocketIO
 from threading import Thread
 import sqlite3
 import paho.mqtt.client as mqtt
 import json
 import time
 
-DATABASE = "./db.sqlite"  # Se rodar fora do docker, mude para "./db.sqlite"
+DATABASE = "./db.sqlite"
 
 app = Flask(__name__)
 CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 def init_db():
     conn = sqlite3.connect(DATABASE)
@@ -51,7 +51,10 @@ def on_message(client, userdata, msg):
 
         save_location(lat, lon, timestamp, error)
         print(f"✅ Localização salva: {payload}")
-    
+
+        # ✅ Envia atualização instantânea para todos os frontends conectados
+        socketio.emit("nova_localizacao", payload)
+
     except Exception as e:
         print(f"Erro ao processar mensagem: {e}")
 
@@ -77,20 +80,17 @@ def get_locations():
 
     return jsonify({"status": 1, "data": data})
 
-
 @app.route("/")
-def index():
-    return send_from_directory(os.path.join(app.root_path, "static"), "index.html")
+def home():
+    return send_from_directory("templates", "index.html")
 
 if __name__ == "__main__":
     init_db()
-    time.sleep(2)
-    
-    mqtt_client = mqtt.Client(protocol=mqtt.MQTTv311)
+
+    mqtt_client = mqtt.Client()
     mqtt_client.on_connect = on_connect
     mqtt_client.on_message = on_message
-
     mqtt_client.connect("test.mosquitto.org", 1883, 60)
-
     Thread(target=mqtt_client.loop_forever).start()
-    app.run(host="0.0.0.0", port=5000)
+
+    socketio.run(app, host="0.0.0.0", port=5000)
