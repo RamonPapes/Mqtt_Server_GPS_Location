@@ -58,7 +58,7 @@ def on_message(client, userdata, msg):
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Conectado ao broker MQTT.")
-        client.subscribe("localizacao/gps")
+        client.subscribe("esp32/gps")
     else:
         print("Erro ao conectar ao broker:", rc)
 
@@ -93,4 +93,4 @@ if __name__ == "__main__":
     mqtt_client.connect("test.mosquitto.org", 1883, 60)
 
     Thread(target=mqtt_client.loop_forever).start()
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(host="0.0.0.0", port=5000)
