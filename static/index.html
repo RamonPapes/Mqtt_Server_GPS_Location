@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Localizações Recebidas</title>
+<style>
+    body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 20px; }
+    h1 { text-align: center; }
+    table { width: 100%; border-collapse: collapse; background: white; }
+    th, td { border: 1px solid #cccccc; padding: 10px; text-align: center; }
+    th { background: #444; color: white; }
+</style>
+</head>
+<body>
+
+<h1>Dados de Localização</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Data/Hora</th>
+            <th>Erro</th>
+        </tr>
+    </thead>
+    <tbody id="data-table">
+        <tr><td colspan="5">Carregando...</td></tr>
+    </tbody>
+</table>
+
+<script>
+function loadData() {
+    fetch("/locations")
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById("data-table");
+            tbody.innerHTML = "";
+
+            data.data.forEach(item => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.latitude}</td>
+                    <td>${item.longitude}</td>
+                    <td>${item.timestamp}</td>
+                    <td>${item.error}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        })
+        .catch(err => {
+            document.getElementById("data-table").innerHTML =
+                "<tr><td colspan='5'>Erro ao carregar</td></tr>";
+        });
+}
+
+setInterval(loadData, 2000);
+loadData();
+</script>
+
+</body>
+</html>
