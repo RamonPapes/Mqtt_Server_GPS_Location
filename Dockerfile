@@ -11,4 +11,4 @@ COPY . .
 # Porta que o Render vai expor
 ENV PORT=5000
 
-CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "-b", "0.0.0.0:5000", "app:socketio"]
+CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "-b", "0.0.0.0:5000", "app:app"]
